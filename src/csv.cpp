@@ -8,12 +8,12 @@
 
 using namespace std;
 
-Csv::Csv(string filePath):filePath(filePath)
+CSV::CSV(string filePath):filePath(filePath)
 {
 }
 
 
-int Csv::readCsv() {
+int CSV::readCSV() {
     ifstream file(filePath);
     if (!file.is_open()) {
         cerr <<ANSI_RED<< "Error: Could not open file " << ANSI_YEL << filePath << ANSI_RST << endl;
@@ -30,9 +30,9 @@ int Csv::readCsv() {
         table.push_back(row);
     }
     file.close();
-    return 0;
+    return 0; 
 }
 
-const Csv::Table& Csv::getTable() const {
+const CSV::Table& CSV::getTable() const {
     return table;
 }

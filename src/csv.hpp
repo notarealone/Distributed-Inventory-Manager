@@ -5,13 +5,13 @@
 #include <vector>
 
 
-class Csv {
+class CSV {
 public:
     using Table = std::vector<std::vector<std::string>>;
 
-    Csv(std::string filePath);
+    CSV(std::string filePath);
 
-    int readCsv();
+    int readCSV();
     const Table& getTable() const;
 
 private:
