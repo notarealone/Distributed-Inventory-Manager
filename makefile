@@ -18,7 +18,7 @@ all: $(OUT_CAS)
 $(OUT_CAS): $(OBJ_DIR)/warehouseManager.o $(OBJ_DIR)/logger.o $(OBJ_DIR)/strops.o $(OBJ_DIR)/csv.o
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
-$(OUT_CITY): $(OBJ_DIR)/building.o $(OBJ_DIR)/logger.o $(OBJ_DIR)/strops.o
+$(OUT_CITY): $(OBJ_DIR)/city.o $(OBJ_DIR)/logger.o $(OBJ_DIR)/strops.o
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
 $(OUT_RESOURCE): $(OBJ_DIR)/resource.o $(OBJ_DIR)/logger.o $(OBJ_DIR)/strops.o $(OBJ_DIR)/csv.o 
@@ -33,7 +33,7 @@ $(OBJ_DIR)/warehouseManager.o: $(SRC_DIR)/main.cpp $(SRC_DIR)/logger.hpp $(SRC_D
  								 $(SRC_DIR)/strops.hpp $(SRC_DIR)/consts.hpp $(SRC_DIR)/utils.hpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-$(OBJ_DIR)/building.o: $(SRC_DIR)/building.cpp $(SRC_DIR)/logger.hpp $(SRC_DIR)/ansi-color.hpp \
+$(OBJ_DIR)/city.o: $(SRC_DIR)/city.cpp $(SRC_DIR)/logger.hpp $(SRC_DIR)/ansi-color.hpp \
 								 $(SRC_DIR)/strops.hpp $(SRC_DIR)/consts.hpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
