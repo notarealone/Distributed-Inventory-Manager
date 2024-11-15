@@ -25,33 +25,33 @@ void getWantedResources(vector<string>& wantedResources){
     wantedResources=strops::split(buffer,SPACE_SEPARETOR);
 }
 
-int createCitiesProcesses(vector<vector<int>> &citiesToMainPipes,vector<vector<int>> &mainToCitiesPipes)
+int createStoresProcesses(vector<vector<int>> &storeToMainPipes,vector<vector<int>> &mainToStorePipes,vector<fs::path> &stores)
 {
-    string cities_names[] = CITIES;
-    for(int i = 0; i<CITIES_NUM;i++){
+    for(int i = 0; i<stores.size();i++){
         int pid=fork();
         if(pid<0){
-            log.logError("Cannot create child process for city " + cities_names[i]);
+            log.logError("Cannot create child process for store " + strops::split(stores[i],SLASH)[1]);
             return EXIT_FAILURE;
         }
         else if(pid==0){//child proccess
+            char filePath[MAX_BUF];
             char readFd[FD_MAX];
             char writeFd[FD_MAX];
-            close(mainToCitiesPipes[i][1]);
-            close(citiesToMainPipes[i][0]);
-            sprintf(readFd,"%d",mainToCitiesPipes[i][0]);           
-            sprintf(writeFd,"%d",citiesToMainPipes[i][1]);
-            if(execl(OUT_CITY, OUT_CITY, readFd, writeFd, NULL) == -1){
-                log.logError("Cannot execute .out file for city " + cities_names[i]);
+            sprintf(filePath,"%s",stores[i].string().c_str());
+            close(mainToStorePipes[i][1]);
+            close(storeToMainPipes[i][0]);
+            sprintf(readFd,"%d",mainToStorePipes[i][0]);           
+            sprintf(writeFd,"%d",storeToMainPipes[i][1]);
+            if(execl(OUT_STORE,OUT_STORE,filePath,readFd,writeFd,NULL)==-1){
+                log.logError("Cannot execute .out file for building " + strops::split(stores[i],SLASH)[1]);
                 return EXIT_FAILURE;
             }
         }
         else if(pid>0){//parent proccess
-            close(citiesToMainPipes[i][1]);
-            close(mainToCitiesPipes[i][0]);
+            close(storeToMainPipes[i][1]);
+            close(mainToStorePipes[i][0]);
         }
     }
-    return EXIT_SUCCESS;
 }
 
 int createProfitProcess(vector<int> &profitToMainPipe,vector<int> &mainToProfitPipe){
@@ -78,31 +78,54 @@ int createProfitProcess(vector<int> &profitToMainPipe,vector<int> &mainToProfitP
     }
 }
 
-void showParts(vector<string> &parts){
-    int k=1;
-    log.logInfo("We have " + to_string(parts.size()) + " parts:");
-    for(auto& part: parts) {
-        log.logInfo(ANSI_GRN +to_string(k) + "- " + ANSI_WHT 
-                        + part + ANSI_RST);
+vector<string> getWantedParts(vector<string> &parts) {
+    vector<string> wantedParts;
+    int k = 1;
+
+    cout << "We have " << parts.size() << " parts:\n";
+    for (auto& part : parts) {
+        cout << ANSI_GRN << k << "- " << ANSI_WHT << part << ANSI_RST << endl;
         k++;
     }
+
+    cout << "\nEnter the numbers of the parts you want, separated by spaces (e.g., 1 3 5): ";
+    string input;
+    getline(cin, input); 
+
+    istringstream stream(input);
+    int partNumber;
+    while (stream >> partNumber) {
+        wantedParts.push_back(parts[partNumber - 1]);
+    }
+    return wantedParts;
 }
 
-int readParts(const std::string& filename, vector<string>& parts, Logger& logger) {
+int readParts(const std::string& filename, vector<string>& parts) {
     CSV partsFile(filename);
     if(partsFile.readCSV() == 0){
         for(auto& part : partsFile.getTable()[0])
             parts.push_back(part);
-        logger.logInfo("Parts Founded.");
+        log.logInfo("Parts Founded.");
         return 0;
     }
     else {
-        logger.logError("Parts Not Found (Wrong Path)");
+        log.logError("Parts Not Found (Wrong Path)");
         return -1;
     }
 
 }
 
+vector<fs::path> getStores(string rootFolderPath) {
+    vector<fs::path> csvFiles = getDirFiles(rootFolderPath,log);
+    fs::path unwantedFile = fs::path(rootFolderPath) / "Parts.csv";
+    vector<fs::path> storesPaths;
+    for (const auto& file : csvFiles) {
+        if (file != unwantedFile) {
+            storesPaths.push_back(file);
+        }
+    }
+    return storesPaths;
+}
 
 int main(int argc, const char* argv[]){
     if(argc != 2){
@@ -112,42 +135,60 @@ int main(int argc, const char* argv[]){
         return EXIT_FAILURE;
     }
     vector<string> parts;
-    readParts("./stores/Parts.csv", parts,log);
-    showParts(parts);
+    string partsPath = string(argv[1]) + "/Parts.csv";
+    readParts(partsPath, parts);
+    vector<string> wantedParts = getWantedParts(parts);
     
-    vector<string> wantedResources;
-    getWantedResources(wantedResources);
+    
+    vector<fs::path> stores = getStores(argv[1]);
 
-    //create unnamed pipes between cities and main process
-    vector<vector<int>> citiesToMainPipes(CITIES_NUM, vector<int>(2));
-    vector<vector<int>> mainToCitiesPipes(CITIES_NUM, vector<int>(2));
-    createCitiesProcesses(citiesToMainPipes, mainToCitiesPipes);
+    //create unnamed pipes between stores and main process
+    vector<vector<int>> storeToMainPipes(stores.size(), vector<int>(2));
+    vector<vector<int>> mainToStorePipes(stores.size(), vector<int>(2));
 
-    //send Informations to city processes
-    string resources_info = "";
-    for(int i=0; i<CITIES_NUM; i++){
-        if(i == CITIES_NUM-1)
-            resources_info += wantedResources[i];
-        else
-            resources_info += (wantedResources[i] + "$");
+    for(int i = 0; i<stores.size();i++){
+        if(pipe(storeToMainPipes[i].data()) == -1){
+            log.logError("Cannot create pipe for store " + to_string(i+1));
+            return EXIT_FAILURE;
+        }
+        if(pipe(mainToStorePipes[i].data()) == -1){
+            log.logError("Cannot create pipe for store " + to_string(i+1));
+            return EXIT_FAILURE;
+        }
     }
-    for(int i=0; i<CITIES_NUM; i++)
-            write(mainToCitiesPipes[i][1],resources_info.c_str(),resources_info.size()); //info format : resource1$resource$resource3\0
+    log.logInfo("Pipes between stores and main created successfully.");
+
+    //create stores proccesses
+
+    createStoresProcesses(storeToMainPipes, mainToStorePipes,stores);
+    log.logInfo("Stores proccesses created successfully.");
+
+
+    // //send Informations to city processes
+    // string resources_info = "";
+    // for(int i=0; i<CITIES_NUM; i++){
+    //     if(i == CITIES_NUM-1)
+    //         resources_info += wantedResources[i];
+    //     else
+    //         resources_info += (wantedResources[i] + "$");
+    // }
+    // for(int i=0; i<CITIES_NUM; i++)
+    //         write(mainToCitiesPipes[i][1],resources_info.c_str(),resources_info.size()); //info format : resource1$resource$resource3\0
     
-    log.logInfo("Information sent to buildings successfully.");
-    sleep(2);
+    // log.logInfo("Information sent to buildings successfully.");
+    // sleep(2);
 
     //create unnamed pipe between profit and main process
-    vector<int> profitToMainPipe(2);
-    vector<int> mainToProfitPipe(2);
-    createProfitProcess(profitToMainPipe, mainToProfitPipe);
+    // vector<int> profitToMainPipe(2);
+    // vector<int> mainToProfitPipe(2);
+    // createProfitProcess(profitToMainPipe, mainToProfitPipe);
 
-    //wait for child proccesses to finish
-    for (int i = 0; i < CITIES_NUM+1; i++) {
-        int status;
-        wait(&status);
-    }
-    log.logInfo("All children proccesses exit successfully.");
+    // //wait for child proccesses to finish
+    // for (int i = 0; i < CITIES_NUM+1; i++) {
+    //     int status;
+    //     wait(&status);
+    // }
+    // log.logInfo("All children proccesses exit successfully.");
 
     //Combine Results
     
