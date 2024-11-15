@@ -7,13 +7,9 @@
 #define MAX_BUF 1024
 #define FINAL_BUFFER 20000
 #define FD_MAX 5
-#define OUT_BUILDING "building.out"
+#define OUT_CITY "city.out"
 #define OUT_RESOURCE "resource.out"
-#define OUT_BILL "bill.out"
+#define OUT_PROFIT "profit.out"
 #define PIPE_PATH "namedPipes"
 #define CITIES_NUM 4
-#define ESFAHAN "Esfahan"
-#define MASHHAD "Mashhad"
-#define TEHRAN "Tehran"
-#define Tabriz "Tabriz"
-
+#define CITIES {"Tabriz", "Esfahan", "Mashhad", "Tehran"}
