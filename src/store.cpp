@@ -19,21 +19,22 @@ using namespace std;
 Logger logger("Store");
 
 struct Voucher {
-    int price;
+    float price;
     int quantity;
 };
 
 void calculateProfitAndLeftovers(const vector<vector<string>>& vouchers,const vector<string>& wantedParts,int& totalProfit
-    ,vector<int>& leftoverQuantities,vector<int>& leftoverMoney) {
+    ,vector<int>& leftoverQuantities,vector<float>& leftoverMoney) {
     unordered_map<string, vector<Voucher>> partVouchersMap;
 
     totalProfit = 0;
 
     for (const auto& voucher : vouchers) {
         string partName = voucher[0];
-        int price = stoi(voucher[1]);
+        float price = stof(voucher[1]);
         int quantity = stoi(voucher[2]);
         string type = voucher[3];
+        cout << voucher[0] << voucher[1] << voucher[2] << voucher[3] << endl;
 
         if (type == INPUT) 
         {
@@ -64,7 +65,7 @@ void calculateProfitAndLeftovers(const vector<vector<string>>& vouchers,const ve
     for (size_t i = 0; i < wantedParts.size(); ++i) {
         const string& partName = wantedParts[i];
         int totalLeftoverQuantity = 0;
-        int totalLeftoverMoney = 0;
+        float totalLeftoverMoney = 0;
 
         auto& leftOverVouchers = partVouchersMap[partName];
         for(const auto& voucher : leftOverVouchers) {
@@ -76,7 +77,7 @@ void calculateProfitAndLeftovers(const vector<vector<string>>& vouchers,const ve
     }
 }
 
-void sendDataToPartsProcesses(const string& storeName, const vector<string>& wantedParts,const vector<int>& leftoverQuantities,const vector<int>& leftoverMoney) {
+void sendDataToPartsProcesses(const string& storeName, const vector<string>& wantedParts,const vector<int>& leftoverQuantities,const vector<float>& leftoverMoney) {
     for (int i = 0; i < wantedParts.size(); ++i) {
         string dirPath = PIPE_PATH + SLASH + wantedParts[i];
         string pipeName = dirPath + SLASH + storeName;
@@ -143,7 +144,7 @@ int main(int argc, char* argv[]) {
 
     int totalProfit = 0;
     vector<int> leftoverQuantities;
-    vector<int> leftoverMoney;
+    vector<float> leftoverMoney;
 
     calculateProfitAndLeftovers(vouchers, wantedParts, totalProfit, leftoverQuantities, leftoverMoney);
 
