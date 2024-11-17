@@ -34,7 +34,6 @@ void calculateProfitAndLeftovers(const vector<vector<string>>& vouchers,const ve
         float price = stof(voucher[1]);
         int quantity = stoi(voucher[2]);
         string type = voucher[3];
-        cout << voucher[0] + " " << voucher[1] + " " << voucher[2] + " " << voucher[3]  + " "<< endl;
 
         if (type == INPUT) 
         {
@@ -45,7 +44,7 @@ void calculateProfitAndLeftovers(const vector<vector<string>>& vouchers,const ve
             auto& inputVouchers = partVouchersMap[partName];
 
             while (quantity > 0 && !inputVouchers.empty()) {
-                auto topVoucher = inputVouchers[0];
+                auto& topVoucher = inputVouchers[0];
 
                 int usedQuantity = min(quantity, topVoucher.quantity);
                 totalProfit += usedQuantity * (price - topVoucher.price);
