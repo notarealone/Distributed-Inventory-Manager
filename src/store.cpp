@@ -23,7 +23,7 @@ struct Voucher {
     int quantity;
 };
 
-void calculateProfitAndLeftovers(const vector<vector<string>>& vouchers,const vector<string>& wantedParts,int& totalProfit
+void calculateProfitAndLeftovers(const vector<vector<string>>& vouchers,const vector<string>& wantedParts,float& totalProfit
     ,vector<int>& leftoverQuantities,vector<float>& leftoverMoney) {
     unordered_map<string, vector<Voucher>> partVouchersMap;
 
@@ -34,7 +34,7 @@ void calculateProfitAndLeftovers(const vector<vector<string>>& vouchers,const ve
         float price = stof(voucher[1]);
         int quantity = stoi(voucher[2]);
         string type = voucher[3];
-        cout << voucher[0] << voucher[1] << voucher[2] << voucher[3] << endl;
+        cout << voucher[0] + " " << voucher[1] + " " << voucher[2] + " " << voucher[3]  + " "<< endl;
 
         if (type == INPUT) 
         {
@@ -142,7 +142,7 @@ int main(int argc, char* argv[]) {
     }
     vouchers = csv.getTable();
 
-    int totalProfit = 0;
+    float totalProfit = 0;
     vector<int> leftoverQuantities;
     vector<float> leftoverMoney;
 
