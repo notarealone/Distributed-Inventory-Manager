@@ -1,4 +1,4 @@
-#include "utils.hpp"
+#include "include/utils.hpp"
 
 using namespace std;
 
@@ -15,4 +15,15 @@ vector<fs::path> getDirFiles(const string& path, Logger& log) {
     }
 
     return files;
+}
+
+vector<string> split(const string& str, char delimiter) {
+    vector<std::string> tokens;
+    istringstream tokenStream(str);
+    string token;
+
+    while (getline(tokenStream, token, delimiter)) {
+        tokens.push_back(token);
+    }
+    return tokens;
 }

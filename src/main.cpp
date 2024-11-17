@@ -5,12 +5,11 @@
 #include <vector>
 #include <algorithm>
 
-#include "logger.hpp"
-#include "ansi-color.hpp"
-#include "strOperations.hpp"
-#include "consts.hpp"
-#include "utils.hpp"
-#include "csv.hpp"
+#include "include/logger.hpp"
+#include "include/csv.hpp"
+#include "include/ansi-color.hpp"
+#include "include/consts.hpp"
+#include "include/utils.hpp"
 
 using namespace std;
 
@@ -44,7 +43,7 @@ void createStoresProcesses(vector<vector<int>> &storeToMainPipes,vector<vector<i
     for(int i = 0; i<stores.size();i++){
         int pid=fork();
         if(pid<0){
-            log.logError("Cannot create child process for store " + strOperations::split(stores[i],SLASH)[1]);
+            log.logError("Cannot create child process for store " + split(stores[i],SLASH)[1]);
             return ;
         }
         else if(pid==0){//child proccess
@@ -57,7 +56,7 @@ void createStoresProcesses(vector<vector<int>> &storeToMainPipes,vector<vector<i
             sprintf(readFd,"%d",mainToStorePipes[i][0]);           
             sprintf(writeFd,"%d",storeToMainPipes[i][1]);
             if(execl(OUT_STORE.c_str(),OUT_STORE.c_str(),filePath,readFd,writeFd,NULL)==-1){
-                log.logError("Cannot execute .out file for building " + strOperations::split(stores[i],SLASH)[1]);
+                log.logError("Cannot execute .out file for building " + split(stores[i],SLASH)[1]);
                 return ;
             }
         }
@@ -102,7 +101,6 @@ int readParts(const std::string& filename, vector<string>& parts) {
         log.logError("Parts Not Found (Wrong Path)");
         return -1;
     }
-
 }
 
 vector<fs::path> getStores(string rootFolderPath) {
@@ -206,8 +204,8 @@ int main(int argc, const char* argv[]){
             return EXIT_FAILURE;
         }
         buffer[bytesRead] = '\0';
-        string partTotalQuantity = strOperations::split(buffer,SPACE_SEPARETOR)[0] ;
-        string partTotalPrice = strOperations::split(buffer,SPACE_SEPARETOR)[1];
+        string partTotalQuantity = split(buffer,SPACE_SEPARETOR)[0] ;
+        string partTotalPrice = split(buffer,SPACE_SEPARETOR)[1];
         cout<< ANSI_MAG << wantedParts[i] << ANSI_RST << "\n" 
             << "\t" << ANSI_GRN << "Total Leftover Quantity = " << ANSI_RST << partTotalQuantity << "\n"
             << "\t" << ANSI_GRN << "Total Leftover Price = " << ANSI_RST << partTotalPrice << endl;

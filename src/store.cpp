@@ -9,10 +9,10 @@
 #include <unordered_map>
 #include <iostream>
 
-#include "consts.hpp"
-#include "logger.hpp"
-#include "strOperations.hpp"
-#include "csv.hpp"
+#include "include/consts.hpp"
+#include "include/logger.hpp"
+#include "include/csv.hpp"
+#include "include/utils.hpp"
 
 using namespace std;
 
@@ -113,8 +113,8 @@ int main(int argc, char* argv[]) {
         return EXIT_FAILURE;
     }
     
-    string storeNameWithFormat = strOperations::split(argv[1], SLASH)[1];
-    string storeName = strOperations::split(storeNameWithFormat, '.')[0];
+    string storeNameWithFormat = split(argv[1], SLASH)[1];
+    string storeName = split(storeNameWithFormat, '.')[0];
     log.setProccessName("Store " + storeName);
 
     int readFromMainFd = atoi(argv[2]);
@@ -128,7 +128,7 @@ int main(int argc, char* argv[]) {
     }
 
     buffer_[bytesRead] = '\0';
-    vector<string> wantedParts = strOperations::split(string(buffer_), SPACE_SEPARETOR);
+    vector<string> wantedParts = split(string(buffer_), SPACE_SEPARETOR);
     close(readFromMainFd);
 
     log.logInfo("Information received from main process successfully");

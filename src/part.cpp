@@ -4,11 +4,10 @@
 #include <unistd.h>
 
 
-#include "consts.hpp"
-#include "ansi-color.hpp"
-#include "logger.hpp"
-#include "utils.hpp"
-#include "strOperations.hpp"
+#include "include/consts.hpp"
+#include "include/ansi-color.hpp"
+#include "include/logger.hpp"
+#include "include/utils.hpp"
 
 using namespace std;
 
@@ -29,17 +28,17 @@ int main(int argc, char* argv[]) {
     for(auto& pipe : pipes){
         int readFd = open(pipe.c_str(), O_RDONLY);
         if (readFd== -1) {
-            log.logError("Can't open pipe for reading: " + strOperations::split(pipe.string(),SLASH)[2]);
+            log.logError("Can't open pipe for reading: " + split(pipe.string(),SLASH)[2]);
             exit(EXIT_FAILURE);
         }
-        log.logInfo("Open Pipe " + strOperations::split(pipe.string(),SLASH)[2] +" successfully.");
+        log.logInfo("Open Pipe " + split(pipe.string(),SLASH)[2] +" successfully.");
         char buffer_[MAX_BUF];
         int bytesRead = read(readFd, buffer_, MAX_BUF);
         buffer_[bytesRead] = '\0';
         string buffer=string(buffer_);
         close(readFd);
-        totalLeftOverQuantity += stoi(strOperations::split(buffer,SPACE_SEPARETOR)[0]);
-        totalLeftoverMoney += stoi(strOperations::split(buffer,SPACE_SEPARETOR)[1]);
+        totalLeftOverQuantity += stoi(split(buffer,SPACE_SEPARETOR)[0]);
+        totalLeftoverMoney += stoi(split(buffer,SPACE_SEPARETOR)[1]);
     }
 
     string codedData = to_string(totalLeftOverQuantity) + SPACE_SEPARETOR + to_string(totalLeftoverMoney);

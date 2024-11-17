@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 
-
 class CSV {
 public:
     using Table = std::vector<std::vector<std::string>>;
