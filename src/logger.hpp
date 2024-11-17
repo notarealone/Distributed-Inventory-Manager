@@ -3,16 +3,14 @@
 #include <string>
 
 class Logger{
-
     public:
         Logger(std::string proccessName);
         void logError(const std::string &errorMsg);
         void logInfo(const std::string &infoMsg);
         void logWarning(const std::string &warningMsg);
-
+        void setProccessName(std::string procName);
     private:
         std::string proccessName;
-
 };
 
 #endif

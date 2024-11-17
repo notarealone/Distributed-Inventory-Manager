@@ -22,3 +22,7 @@ void Logger::logInfo(const string &infoMsg){
 void Logger::logWarning(const string &warningMsg){
     cout << ANSI_YEL << "[WARNING: " << proccessName << "] "<< ANSI_RST << warningMsg << '\n';
 }
+
+void Logger::setProccessName(string procName){
+    proccessName = procName;
+}
