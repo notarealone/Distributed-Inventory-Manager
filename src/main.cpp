@@ -213,7 +213,7 @@ int main(int argc, const char* argv[]){
     }
 
     //read profit from store processes
-    int totalProfit = 0;
+    float totalProfit = 0;
     for(int i=0; i < storeToMainPipes.size(); i++){
         char buffer[MAX_BUF];
         int bytesRead = read(storeToMainPipes[i][0], buffer, MAX_BUF);
@@ -222,7 +222,7 @@ int main(int argc, const char* argv[]){
             return EXIT_FAILURE;
         }
         buffer[bytesRead] = '\0';
-        totalProfit += atoi(buffer);
+        totalProfit += atof(buffer);
         close(storeToMainPipes[i][0]);
     }
     cout << ANSI_YEL << "Total profit of all stores : " << ANSI_RST << totalProfit << endl;
