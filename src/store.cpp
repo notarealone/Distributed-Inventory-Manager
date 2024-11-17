@@ -16,7 +16,7 @@
 
 using namespace std;
 
-Logger log("Store");
+Logger logger("Store");
 
 struct Voucher {
     int price;
@@ -84,21 +84,21 @@ void sendDataToPartsProcesses(const string& storeName, const vector<string>& wan
         try {
             if (!fs::exists(dirPath)) {
                 fs::create_directories(dirPath);
-                log.logInfo("Directory created: " + dirPath);
+                logger.logInfo("Directory created: " + dirPath);
             }
         } catch (const fs::filesystem_error& e) {
-            log.logError("Cannot create directory " + dirPath + ": " + e.what());
+            logger.logError("Cannot create directory " + dirPath + ": " + e.what());
             return;
         }
 
         if (mkfifo(pipeName.c_str(), 0666) == -1) {
-            log.logError("Cannot create named pipe for part " + wantedParts[i]);
+            logger.logError("Cannot create named pipe for part " + wantedParts[i]);
             return;
         }
         //open pipe for writing
         int writeFd = open(pipeName.c_str(), O_WRONLY);
         if (writeFd == -1) {
-            log.logError("Can't open pipe for writing: " + pipeName);
+            logger.logError("Can't open pipe for writing: " + pipeName);
             return;
         }
         string data = to_string(leftoverQuantities[i]) + SPACE_SEPARETOR + to_string(leftoverMoney[i]);
@@ -109,13 +109,13 @@ void sendDataToPartsProcesses(const string& storeName, const vector<string>& wan
 
 int main(int argc, char* argv[]) {
     if (argc != 4) {
-        log.logError("Incorrect number of arguments");
+        logger.logError("Incorrect number of arguments");
         return EXIT_FAILURE;
     }
     
     string storeNameWithFormat = split(argv[1], SLASH)[1];
     string storeName = split(storeNameWithFormat, '.')[0];
-    log.setProccessName("Store " + storeName);
+    logger.setProccessName("Store " + storeName);
 
     int readFromMainFd = atoi(argv[2]);
     int writeToMainFd = atoi(argv[3]);
@@ -123,7 +123,7 @@ int main(int argc, char* argv[]) {
     char buffer_[MAX_BUF];
     int bytesRead = read(readFromMainFd, buffer_, MAX_BUF);
     if (bytesRead <= 0) {
-        log.logError("Failed to read from main process");
+        logger.logError("Failed to read from main process");
         return EXIT_FAILURE;
     }
 
@@ -131,12 +131,12 @@ int main(int argc, char* argv[]) {
     vector<string> wantedParts = split(string(buffer_), SPACE_SEPARETOR);
     close(readFromMainFd);
 
-    log.logInfo("Information received from main process successfully");
+    logger.logInfo("Information received from main process successfully");
 
     vector<vector<string>> vouchers;
     CSV csv(argv[1]);
     if (csv.readCSV(wantedParts) == -1) {
-        log.logError("Cannot read CSV file");
+        logger.logError("Cannot read CSV file");
         return EXIT_FAILURE;
     }
     vouchers = csv.getTable();
@@ -151,10 +151,10 @@ int main(int argc, char* argv[]) {
     string profit = to_string(totalProfit);
     write(writeToMainFd, profit.c_str(), profit.size());
     close(writeToMainFd);
-    log.logInfo("Profit sent to main process successfully");
+    logger.logInfo("Profit sent to main process successfully");
 
     // Send leftover data to other processes if needed
     sendDataToPartsProcesses(storeName,wantedParts, leftoverQuantities, leftoverMoney);
-    log.logInfo("Store process finished successfully");
+    logger.logInfo("Store process finished successfully");
     exit(EXIT_SUCCESS);
 }

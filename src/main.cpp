@@ -13,14 +13,14 @@
 
 using namespace std;
 
-Logger log("main");
+Logger logger("main");
 
 void createPartsProcesses(vector<vector<int>> &partsToMainPipes,vector<string> &wantedParts){
     for(int i = 0; i<wantedParts.size();i++){
         sleep(1);
         int pid=fork();
         if(pid<0){
-            log.logError("Cannot create child process for part " + wantedParts[i]);
+            logger.logError("Cannot create child process for part " + wantedParts[i]);
             return ;
         }
         else if(pid==0){//child proccess
@@ -28,7 +28,7 @@ void createPartsProcesses(vector<vector<int>> &partsToMainPipes,vector<string> &
             close(partsToMainPipes[i][0]);
             sprintf(writeFd,"%d",partsToMainPipes[i][1]);
             if(execl(OUT_PART.c_str(),OUT_PART.c_str(),wantedParts[i].c_str(),writeFd,NULL)==-1){
-                log.logError("Cannot execute .out file for part " + wantedParts[i]);
+                logger.logError("Cannot execute .out file for part " + wantedParts[i]);
                 return ;
             }
         }
@@ -43,7 +43,7 @@ void createStoresProcesses(vector<vector<int>> &storeToMainPipes,vector<vector<i
     for(int i = 0; i<stores.size();i++){
         int pid=fork();
         if(pid<0){
-            log.logError("Cannot create child process for store " + split(stores[i],SLASH)[1]);
+            logger.logError("Cannot create child process for store " + split(stores[i],SLASH)[1]);
             return ;
         }
         else if(pid==0){//child proccess
@@ -56,7 +56,7 @@ void createStoresProcesses(vector<vector<int>> &storeToMainPipes,vector<vector<i
             sprintf(readFd,"%d",mainToStorePipes[i][0]);           
             sprintf(writeFd,"%d",storeToMainPipes[i][1]);
             if(execl(OUT_STORE.c_str(),OUT_STORE.c_str(),filePath,readFd,writeFd,NULL)==-1){
-                log.logError("Cannot execute .out file for building " + split(stores[i],SLASH)[1]);
+                logger.logError("Cannot execute .out file for building " + split(stores[i],SLASH)[1]);
                 return ;
             }
         }
@@ -94,17 +94,17 @@ int readParts(const std::string& filename, vector<string>& parts) {
     if(partsFile.readCSV() == 0){
         for(auto& part : partsFile.getTable()[0])
             parts.push_back(part);
-        log.logInfo("Parts Founded.");
+        logger.logInfo("Parts Founded.");
         return 0;
     }
     else {
-        log.logError("Parts Not Found (Wrong Path)");
+        logger.logError("Parts Not Found (Wrong Path)");
         return -1;
     }
 }
 
 vector<fs::path> getStores(string rootFolderPath) {
-    vector<fs::path> csvFiles = getDirFiles(rootFolderPath,log);
+    vector<fs::path> csvFiles = getDirFiles(rootFolderPath,logger);
     fs::path unwantedFile = fs::path(rootFolderPath) / "Parts.csv";
     vector<fs::path> storesPaths;
     for (const auto& file : csvFiles) {
@@ -133,11 +133,11 @@ int main(int argc, const char* argv[]){
     {
         if(pipe(partsToMainPipes[i].data()) == -1)
         {
-            log.logError("Cannot create pipe for part " + wantedParts[i]);
+            logger.logError("Cannot create pipe for part " + wantedParts[i]);
             return EXIT_FAILURE;
         }
     }
-    log.logInfo("Pipes between parts and main created successfully.");
+    logger.logInfo("Pipes between parts and main created successfully.");
 
     vector<fs::path> stores = getStores(argv[1]);
 
@@ -149,20 +149,20 @@ int main(int argc, const char* argv[]){
     {
         if(pipe(storeToMainPipes[i].data()) == -1)
         {
-            log.logError("Cannot create pipe for store " + to_string(i+1));
+            logger.logError("Cannot create pipe for store " + to_string(i+1));
             return EXIT_FAILURE;
         }
         if(pipe(mainToStorePipes[i].data()) == -1)
         {
-            log.logError("Cannot create pipe for store " + to_string(i+1));
+            logger.logError("Cannot create pipe for store " + to_string(i+1));
             return EXIT_FAILURE;
         }
     }
-    log.logInfo("Pipes between stores and main created successfully.");
+    logger.logInfo("Pipes between stores and main created successfully.");
 
     //create stores proccesses
     createStoresProcesses(storeToMainPipes, mainToStorePipes,stores);
-    log.logInfo("Stores proccesses created successfully.");
+    logger.logInfo("Stores proccesses created successfully.");
 
 
     //send WantedParts to store processes
@@ -176,11 +176,11 @@ int main(int argc, const char* argv[]){
         write(mainToStorePipes[i][1],wantedPartsAsString.c_str(),wantedPartsAsString.size());
     }
     
-    log.logInfo("Wanted parts sent to stores successfully.");
+    logger.logInfo("Wanted parts sent to stores successfully.");
 
     //create parts proccesses   
     createPartsProcesses(partsToMainPipes,wantedParts);
-    log.logInfo("Parts proccesses created successfully.");
+    logger.logInfo("Parts proccesses created successfully.");
 
     //  wait for children proccesses to finish
     for(int i = 0; i<stores.size();i++)
@@ -192,7 +192,7 @@ int main(int argc, const char* argv[]){
     {
         wait(NULL);
     }
-    log.logInfo("All children proccesses exit successfully.");
+    logger.logInfo("All children proccesses exit successfully.");
 
 
     //read total Quantities and Total Prices from parts
@@ -200,7 +200,7 @@ int main(int argc, const char* argv[]){
         char buffer[MAX_BUF];
         int bytesRead = read(partsToMainPipes[i][0], buffer, MAX_BUF);
         if (bytesRead <= 0) {
-            log.logError("Failed to read from part process: " + wantedParts[i]);
+            logger.logError("Failed to read from part process: " + wantedParts[i]);
             return EXIT_FAILURE;
         }
         buffer[bytesRead] = '\0';
@@ -218,7 +218,7 @@ int main(int argc, const char* argv[]){
         char buffer[MAX_BUF];
         int bytesRead = read(storeToMainPipes[i][0], buffer, MAX_BUF);
         if (bytesRead <= 0) {
-            log.logError("Failed to read from store process");
+            logger.logError("Failed to read from store process");
             return EXIT_FAILURE;
         }
         buffer[bytesRead] = '\0';

@@ -17,21 +17,21 @@ int main(int argc, char* argv[]) {
         exit(EXIT_FAILURE);
     }
     string partName = argv[1];
-    Logger log("Part " + partName);
+    Logger logger("Part " + partName);
     int writeToMainFd = atoi(argv[2]);
 
     int totalLeftOverQuantity = 0;
     int totalLeftoverMoney = 0;
 
     
-    vector<fs::path> pipes = getDirFiles(PIPE_PATH + SLASH + partName,log);
+    vector<fs::path> pipes = getDirFiles(PIPE_PATH + SLASH + partName,logger);
     for(auto& pipe : pipes){
         int readFd = open(pipe.c_str(), O_RDONLY);
         if (readFd== -1) {
-            log.logError("Can't open pipe for reading: " + split(pipe.string(),SLASH)[2]);
+            logger.logError("Can't open pipe for reading: " + split(pipe.string(),SLASH)[2]);
             exit(EXIT_FAILURE);
         }
-        log.logInfo("Open Pipe " + split(pipe.string(),SLASH)[2] +" successfully.");
+        logger.logInfo("Open Pipe " + split(pipe.string(),SLASH)[2] +" successfully.");
         char buffer_[MAX_BUF];
         int bytesRead = read(readFd, buffer_, MAX_BUF);
         buffer_[bytesRead] = '\0';
