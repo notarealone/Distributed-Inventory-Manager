@@ -115,6 +115,13 @@ vector<fs::path> getStores(string rootFolderPath) {
     return storesPaths;
 }
 
+    //Delete Named pipes
+void closeAllNamedPipes(vector<string> parts){
+        for(int i=0; i < parts.size(); i++){
+            fs::remove_all(PIPE_PATH + SLASH + parts[i]);
+        }
+    }
+
 int main(int argc, const char* argv[]){
     if(argc != 2){
         cerr << ANSI_RED << "correct format: "
@@ -226,4 +233,6 @@ int main(int argc, const char* argv[]){
         close(storeToMainPipes[i][0]);
     }
     cout << ANSI_YEL << "Total profit of all stores : " << ANSI_RST << totalProfit << endl;
+    closeAllNamedPipes(wantedParts);
+    return EXIT_SUCCESS;
 }
