@@ -10,13 +10,13 @@ The project demonstrates inter-process communication (IPC) using both unnamed pi
 
 The project consists of the following components:
 
-*   **`main.cpp` (main.txt):** The main program that initializes the system, creates warehouse and product processes, handles user input, and displays the final results.
-*   **`store.cpp` (store.txt):**  Represents a warehouse process. Each store process reads data from its corresponding CSV file, calculates product quantities and values within that warehouse, computes profit, and communicates with product processes and the main process.
-*   **`part.cpp` (part.txt):** Represents a product process. Each product process receives inventory data from multiple store processes via named pipes, aggregates the data, and sends the total quantity and value to the main process.
-*   **`csv.cpp` (csv.txt):** A utility class for parsing CSV files.
-*   **`utils.cpp` (utils.txt):** Provides helper functions like splitting strings and retrieving files from a directory.
-*   **`logger.cpp` (logger.txt):** A simple logging class for debugging and displaying informational messages during process execution.
-*   **`include/`:** Contains header files for constants, ANSI color codes, CSV, logger, and utility functions.
+*   **`main.cpp` :** The main program that initializes the system, creates warehouse and product processes, handles user input, and displays the final results.
+*   **`store.cpp` :**  Represents a warehouse process. Each store process reads data from its corresponding CSV file, calculates product quantities and values within that warehouse, computes profit, and communicates with product processes and the main process.
+*   **`part.cpp` :** Represents a product process. Each product process receives inventory data from multiple store processes via named pipes, aggregates the data, and sends the total quantity and value to the main process.
+*   **`csv.cpp` :** A utility class for parsing CSV files.
+*   **`utils.cpp` :** Provides helper functions like splitting strings and retrieving files from a directory.
+*   **`logger.cpp` :** A simple logging class for debugging and displaying informational messages during process execution.
+*   **`src/include/`:** Contains header files for constants, ANSI color codes, CSV, logger, and utility functions.
 *   **`Makefile`:** Automates the compilation process.
 *   **`stores/`:** A directory containing CSV files that represent the warehouses. This directory also contains a `Parts.csv` file that lists all available products.
 
