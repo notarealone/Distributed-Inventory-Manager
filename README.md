@@ -72,5 +72,5 @@ The project consists of the following components:
 
 ## Authors
 
+*   **Soheil HajianManesh** - [GitHub Profile](https://github.com/SoheilHajianManesh)
 *   **Alireza Hosseini** - [GitHub Profile](https://github.com/notarealone)
-*   **Soheil Haji Manesh** - [GitHub Profile](https://github.com/SoheilHajianManesh)
